@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Edit the Data</h1>
+    <form action="/edit/{{data[0][0]}}" method="post">
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" value="{{data[0][1]}}" required>
+        <label for="ripeness">Ripeness (ID)</label>
+        <select name="ripeness" id="ripeness">
+            {% for ripeness in data[1] %}
+                {% if ripeness[0] == data[0][2] %}
+                    <option value="{{ripeness[0]}}" selected>{{ripeness[1]}}</option>
+                {% else %}
+                    <option value="{{ripeness[0]}}">{{ripeness[1]}}</option>
+                {% endif %}
+
+            {% endfor %}
+        </select>
+        <label for="oilContent">Oil Content</label>
+        <input type="number" min="0" max="100" step="any" name="oilContent" id="oilContent" value="{{data[0][3]}}" required>
+        <input type="submit" value="Edit">
+    </form>
+</body>
+</html>

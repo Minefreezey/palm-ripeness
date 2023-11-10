@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palm Oil system</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h2>Let's collect some palms!</h2>
+
+    <form action="/add" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="image">Upload an image</label>
+            <input type="file" name="image" id="image" accept="image/jpeg, image/png, image/gif, image/bmp, image/webp" onchange="previewImage(event)">
+            <img id="image-preview" src="#" alt="Image Preview">
+            <br>
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" placeholder="Enter Name" required>
+            <label for="ripeness">Ripeness</label>
+            
+            <select name="ripeness" id="ripeness" required >
+                <option value="" selected disabled hidden>Select Ripeness..</option>
+                {% for ripeness in data[1] %}
+                    <option value="{{ripeness[0]}}">{{ripeness[1]}}</option>
+                {% endfor %}
+            </select>
+            <label for="oilContent">Oil Content</label>
+            <input type="number" min="0" max="100" step="any" name="oilContent" id="oilContent" placeholder="Enter Oil Content (%)" required>
+            <input type="submit" value="Add">
+        </div>
+    </form>
+    <hr>
+    <table>
+        <tr>
+            <th>Image</th>
+            <th>Image Name</th>
+            <th>Ripeness</th>
+            <th>Oil Content</th>
+            <th>Captured</th>
+            <th>Last edit</th>
+        </tr>
+        {% for row in data[0]%}
+        <tr>
+            <td><img src="data:image/png;base64, {{row.img}}" alt="Image of {{row.id}}" height="100px"></td>
+            <td>{{row.img_name}}</td>
+            <td>{{row.ripeness_level}}</td>
+            <td>{{row.oil_content}}</td>
+            <td>{{row.time_captured.strftime('%Y-%m-%d | %H:%M:%S')}}</td>
+            <td>{{row.last_edit.strftime('%Y-%m-%d | %H:%M:%S')}}</td>
+            <td><a href="/edit/{{row.id}}"><button>Edit</button></a></td>
+            <td><a href="/delete/{{row.id}}" ><button onclick='return confirm("Are you sure to delete {{row.img_name}} ?")'>Delete</button></a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <script>
+        function previewImage(event){
+            var input = event.target;
+            var preview = document.getElemntByID('image-preview');
+            var reader = new FileReader();
+
+            reader.onload = function(){
+                preview.src = reader.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    </script>
+</body>
+</html>

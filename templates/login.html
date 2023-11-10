@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    <h1>Please Sign In</h1>
+    <form action="/login_user">
+        <div>
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" placeholder="Please enter username">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="Please enter password">
+            <input type="submit" value="Sign In">
+        </div>
+    </form>
+    <div>
+        <p>Haven't Registered yet?</p>
+        <a href="/register">Register</a>
+    </div>
+</body>
+
+</html>
