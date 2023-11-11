@@ -23,7 +23,7 @@
     {% if data[0] == [] %}
     <h3>No data found</h3>
     {% else %}
-    <a href="/download"><button>Download</button></a>
+    <a href="{{ url_for('download', date_from= data[2], date_to= data[3]) }}"><button>Download .csv file</button></a>
     <div>
         <table>
             <tr>

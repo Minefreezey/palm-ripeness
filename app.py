@@ -1,8 +1,10 @@
-from flask import Flask,render_template, request, redirect, url_for, flash
+from flask import Flask,render_template, request, redirect, url_for, flash, Response
 from flask_bcrypt import Bcrypt
 import base64
 import psycopg2
 import re
+import csv
+from io import StringIO
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -275,18 +277,59 @@ def report():
             }
             for data in data3
         ]
-        context = [data3IMG, data2]
+        context = [data3IMG, data2, date_from, date_to]
         cursor.close()
         conn.close()
         return render_template('report.html', data = context)
     return render_template('report.html')
 
+@app.route('/download/<date_from>/<date_to>')
+def download(date_from, date_to):
+    conn = psycopg2.connect(**db_params)
+    cursor = conn.cursor()
+    ripeQuery = """
+        SELECT * FROM ripeness;
+    """
+    dateQuery = """
+        SELECT 
+            p.id,
+            p.img_Name,
+            r.ripeness_level,
+            p.oil_content,
+            p.time_captured,
+            p.last_edit
+        FROM
+            palm p
+        JOIN
+            ripeness r ON p.ripeness_id = r.id
+        WHERE
+            p.time_captured BETWEEN %s AND %s
+    """
+    cursor.execute(ripeQuery)
+    cursor.execute(dateQuery,(date_from,date_to))
+    data0 = cursor.fetchall()
+    print(data0)
+
+    csv_string = StringIO()
+    csv_writer = csv.writer(csv_string)
+
+    csv_writer.writerow(['ID','Image Name','Ripeness Level','Oil Content','Time Captured','Last Edit'])
+    csv_writer.writerows(data0)
+
+    date_from = date_from.split(' ')[0]
+    date_to = date_to.split(' ')[0]
+    response = Response(
+        csv_string.getvalue(),
+        content_type='text/csv',
+        headers={'Content-disposition': f'attachment; filename=report_{date_from}_{date_to}.csv'}
+    )
+
+    redirect(url_for('report'))
+    return response
+
 @app.route('/predict')
 def predict():
     return render_template('predict.html')
-
-
-
 
 
 if __name__ == '__main__':
