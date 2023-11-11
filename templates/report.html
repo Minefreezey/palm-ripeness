@@ -1,12 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oil palm report</title>
 </head>
+
 <body>
     {% include 'navbar.html'%}
     <h2>Oil palm report</h2>
+
+    <form action="/report" method="post">
+        <label for="date_from">Select Date</label>
+        <input type="date" name="date_from" id="date_from" required>
+        <label for="date_to">To</label>
+        <input type="date" name="date_to" id="date_to" required>
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if request.method == 'POST' %}
+    {% if data[0] == [] %}
+    <h3>No data found</h3>
+    {% else %}
+    <a href="/download"><button>Download</button></a>
+    <div>
+        <table>
+            <tr>
+                <th>Image</th>
+                <th>Image Name</th>
+                <th>Ripeness</th>
+                <th>Oil Content</th>
+                <th>Captured</th>
+                <th>Last edit</th>
+            </tr>
+            {% for row in data[0]%}
+            <tr>
+                <td><img src="data:image/png;base64, {{row.img}}" alt="Image of {{row.id}}" height="200px"></td>
+                <td>{{row.img_name}}</td>
+                <td>{{row.ripeness_level}}</td>
+                <td>{{row.oil_content}}</td>
+                <td>{{row.time_captured.strftime('%Y-%m-%d | %H:%M:%S')}}</td>
+                <td>{{row.last_edit.strftime('%Y-%m-%d | %H:%M:%S')}}</td>
+                <td><a href="/edit/{{row.id}}"><button>Edit</button></a></td>
+                <td><a href="/delete/{{row.id}}"><button
+                            onclick='return confirm("Are you sure to delete {{row.img_name}} ?")'>Delete</button></a>
+                </td>
+            </tr>
+            {% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
 </body>
+
 </html>

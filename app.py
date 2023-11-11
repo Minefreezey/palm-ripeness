@@ -203,8 +203,82 @@ def add():
     conn.close()
     return redirect(url_for("collect"))
 
-@app.route('/report')
+@app.route('/report' , methods = ['GET','POST'])
 def report():
+    conn = psycopg2.connect(**db_params)
+    cursor = conn.cursor()
+    query = """
+        SELECT 
+            p.id,
+            p.img,
+            p.img_Name,
+            r.ripeness_level,
+            p.oil_content,
+            p.time_captured,
+            p.last_edit
+        FROM
+            palm p
+        JOIN
+            ripeness r ON p.ripeness_id = r.id
+    """
+    ripeQuery = """
+        SELECT * FROM ripeness;
+    """
+    cursor.execute(query)
+    data0 = cursor.fetchall()
+    data1 = [
+        {
+            'id' : data[0],
+            'img' : base64.b64encode(data[1]).decode('utf-8'),
+            'img_name' : data[2],
+            'ripeness_level' : data[3],
+            'oil_content' : data[4],
+            'time_captured' : data[5],
+            'last_edit' : data[6]
+        }
+        for data in data0
+    ]
+    cursor.execute(ripeQuery)
+    data2 = cursor.fetchall()
+    context = [data1, data2]
+    if request.method == "POST":
+        date_from = request.form['date_from'] + ' 00:00:00'
+        date_to = request.form['date_to'] + ' 23:59:59'
+        print(date_from,date_to)
+        dateQuery = """
+            SELECT 
+                p.id,
+                p.img,
+                p.img_Name,
+                r.ripeness_level,
+                p.oil_content,
+                p.time_captured,
+                p.last_edit
+            FROM
+                palm p
+            JOIN
+                ripeness r ON p.ripeness_id = r.id
+            WHERE
+                p.time_captured BETWEEN %s AND %s
+        """
+        cursor.execute(dateQuery,(date_from,date_to))
+        data3 = cursor.fetchall()
+        data3IMG = [
+            {
+                'id' : data[0],
+                'img' : base64.b64encode(data[1]).decode('utf-8'),
+                'img_name' : data[2],
+                'ripeness_level' : data[3],
+                'oil_content' : data[4],
+                'time_captured' : data[5],
+                'last_edit' : data[6]
+            }
+            for data in data3
+        ]
+        context = [data3IMG, data2]
+        cursor.close()
+        conn.close()
+        return render_template('report.html', data = context)
     return render_template('report.html')
 
 @app.route('/predict')
