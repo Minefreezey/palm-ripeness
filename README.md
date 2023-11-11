@@ -1,9 +1,14 @@
 # palm-ripeness
 ## Activate Virtual Environment
+First create a virtual environment named 'myenv'
+```
+python -m venv myenv
+```
+Then activate the virtual environment 
 ```
 myenv\Scripts\activate
 ```
-Then install dependencies
+## Install dependencies
 ```
 pip install -r requirements.txt
 ```
